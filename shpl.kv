@@ -1,31 +1,4 @@
 #:kivy 1.11.1
-# <LoadFileWindow>:
-#     name : "LoadFile"
-#     GridLayout : 
-#         cols : 1
-        
-#         Button:
-#             text: "Browse"
-#             size_hint : 0.5,0.5
-#             on_release : 
-#                 FileChooserIconView:
-#                     id: filechooser
-#                     on_selection: root.selected(filechooser.selection)
-#             # Image:
-#             #     id: image
-#             #     source: ""
-#         Button:
-#             text: "Submit"
-#             size_hint : 0.5,0.5
-#             on_press: print("File submitted!")
-#             on_release : root.open(filechooser.path,filechooser.selection)
-#                 # border : 0.5,0.5
-
-
-# <ApplyModelWindow>:
-
-
-# <WriteDataWindow>:
 
 <FileChoosePopup>:
     title: "Choose a .CSV File"
@@ -80,7 +53,8 @@
                     on_release: root.dismiss()
                 Button:
                     text: "Save"
-                    on_release: root.download_to(filechooser_2.path,get_save_file_name.text)
+                    on_release: 
+                        root.download_to(filechooser_2.path,get_save_file_name.text)
                     id: dlbtn
                     # disabled: True if filechooser.selection==[] else False
 
@@ -213,8 +187,7 @@
                 size_hint_x : 0.2
                 pos_hint : {'left' : 0.5, 'right' : 0.5}
                 on_press: 
-                    root.open_popup_for_download()
-                    root.download_data()
+                    root.open_popup_for_download()                    
             Label:
                 text: ''
                 size_hint_x : 0.4

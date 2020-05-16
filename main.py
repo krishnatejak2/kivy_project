@@ -37,6 +37,7 @@ class Tab(TabbedPanel):
         self.file_path_dl = os.path.join(selection, filename_input)
         self.download_file_popup.dismiss()
         print("Download to : ",self.file_path_dl)  
+        self.data.to_csv(self.file_path_dl)
 
     def load(self, selection):
         self.file_path = str(selection[0])
@@ -59,10 +60,6 @@ class Tab(TabbedPanel):
             print(test_predict)
 
             self.data['Predicted_Labels'] = test_predict
-
-    def download_data(self):
-        self.data.to_csv(self.file_path_dl)
-
 
 class SHPLApp(App):
     def build(self):
