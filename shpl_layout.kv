@@ -1,0 +1,416 @@
+#:kivy 1.11.1
+
+# <DataSelectPopup>:
+#     title: "Data"
+#     size_hint: .9, .9
+#     auto_dismiss: False
+
+#     BoxLayout:
+#         orientation: "vertical"
+#         Label :
+#             text : "Choose a source file to continue"        
+#         BoxLayout:
+#             size_hint: (1, 0.1)
+#             Button:
+#                 text: "Cancel"
+#                 on_release: 
+#                     app.root.current = "import"
+#                     root.dismiss()
+                    
+                    # self.tab.switch_to(root.tab_list[2])
+
+
+<TextInputPopup>:
+    title: "Popup"
+    size_hint: None, None
+    size: 400, 400
+    auto_dismiss: False
+
+    BoxLayout:
+        orientation: "vertical"
+        TextInput:
+            id: txtinput
+            text: root.obj_text
+        BoxLayout:
+            orientation: "horizontal"
+            # size_hint: None, 0.2
+            size_hint: (1, 0.2)
+            Button:
+                text: "Save"
+                on_release:
+                    root.obj.update_changes(txtinput.text)
+                    root.dismiss()
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
+
+<SelectableButton>:
+    # Draw a background to indicate selection
+    canvas.before:
+        Color:
+            rgba: (.0, 0.9, .1, .3) if self.selected else (0, 0, 0, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size                            
+
+<FileChoosePopup>:
+    title: "Choose a .CSV File"
+    size_hint: .9, .9
+    auto_dismiss: False
+    filechooser : filechooser
+    BoxLayout:
+        orientation: "vertical"
+        FileChooser:
+            id: filechooser
+            FileChooserIconLayout
+
+        BoxLayout:
+            size_hint: (1, 0.1)
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            spacing: 20
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
+            Button:
+                text: "Load"
+                on_release: root.load(filechooser.selection)
+                id: ldbtn
+                disabled: True if filechooser.selection==[] else False
+
+<DownloadChoosePopup>:
+    title: "Save to location"
+    size_hint: .9, .9
+    auto_dismiss: False
+
+    BoxLayout:
+        orientation: "vertical"
+        FileChooser:
+            id: filechooser_2
+            FileChooserIconLayout
+        
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint: (1, 0.1)
+            pos_hint: {'center_x': .5, 'center_y': .5}
+            spacing: 20
+            # orientation: "vertical"
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
+            Button:
+                text: "Select Folder" if filechooser_2.selection==[] else "Select File"
+                on_release: 
+                    root.download_to(filechooser_2.path if filechooser_2.selection==[] else filechooser_2.selection, "1" if filechooser_2.selection==[] else "0")
+                id: dlbtn
+                # disabled: True if filechooser_2.selection==[] else False
+
+<Manager>:
+    ImportScreen:
+        id: import_screen
+        name: 'import'
+    ModelScreen:
+        id: model_screen
+        name: 'model'
+        data_from_import : import_screen.data # binding
+    AnalyseScreen:
+        id: analyse_screen
+        name: 'analyse'
+    ExportScreen:
+        id: export_screen
+        name: 'export'
+        
+
+<ImportScreen>:
+    # name: "import"
+
+    # selectmodel : select_model_id
+    # selectlabel : select_label_id
+    BoxLayout:
+        orientation: 'vertical'
+        # size_hint : None,None
+        Label:
+            id: pagename_id
+            text : 'Import Data'
+            font_size : 50
+            size_hint_y : 0.3
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.3
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint : (0.8,0.2)
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            Button:
+                text: 'Choose File'
+                size_hint_x : 0.4
+                # size_hint_x: 0.1
+                # size_hint_y: 0.1
+                on_press: root.open_popup()
+
+            TextInput:
+                id: get_file
+                readonly: False
+                size_hint_x : 0.6
+                # size_hint_x: 0.4
+                # size_hint_y: 0.1
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.4
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint : (0.5,0.2)
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            Button:
+                text: 'Upload'
+                # size_hint_x: 0.3           
+                # size_hint_y: 0.2
+                on_press: 
+                    root.upload_data()
+            Button:
+                text: 'Submit'
+                # size_hint_x: 0.3           
+                # size_hint_y: 0.2
+                on_press: 
+                    root.data_check_popup()
+                    # app.root.current = "model"
+                    root.manager.transition.direction = "left"
+
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.3   
+
+<ModelScreen>:
+    # name: "model"
+    selectmodel : select_model_id
+    selectlabel : select_label_id
+    model_label : model_label
+    class_label : class_label
+    # mainbutton_model : mainbutton_model
+    BoxLayout:
+        # id : apply_model_tab_id
+        orientation: 'vertical'
+        Label:
+            id: model_screen_label_id
+            text : 'Apply Model'
+            font_size : 50
+            size_hint_y : 0.3
+        # spacing : 150
+        # # size_hint : 1,1
+        # Label:
+        #     id: pagename_id
+        #     text : 'Select Model'
+        #     font_size : 50
+
+        BoxLayout:
+            id : select_model_id
+            orientation: 'horizontal'
+            pos_hint: {'center_x': .5, 'center_y': .5}     
+            size_hint : (0.8,None)
+            Label :
+                id : model_label
+                text : 'Model'
+                size_hint : (0.4,0.2)           
+                pos_hint: {'center_x': .5, 'center_y': .5}
+            # Button:
+            #     id : mainbutton_model
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.3                 
+        BoxLayout:
+            id : select_label_id
+            orientation: 'horizontal'
+            pos_hint: {'center_x': .5, 'center_y': .5}     
+            size_hint : (0.8,None)
+            Label :
+                id : class_label
+                text : 'Label Column'
+                size_hint : (0.4,0.2)           
+                pos_hint: {'center_x': .5, 'center_y': .5}
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.3 
+
+        BoxLayout:
+            id : select_apply_id
+            orientation: 'horizontal'
+            pos_hint: {'center_x': .5, 'center_y': .5}   
+            size_hint : 0.8,0.2
+            Button:
+                text:'Back'
+                size : root.width*0.5, root.height*0.1
+                on_press: 
+                    app.root.current = "import"
+                    root.manager.transition.direction = "right"
+            Button:
+                text:'Apply'
+                size : root.width*0.5, root.height*0.1
+                on_press: 
+                    root.apply_model()
+                    # root.on_cells()
+                    # root.switch_to(root.tab_list[1])
+                    app.root.current = "analyse"
+                    root.manager.transition.direction = "left"
+
+<AnalyseScreen>:
+    cells : cells_id
+    header_row : header_row_id
+    BoxLayout:
+        orientation: "vertical"
+
+        GridLayout:
+            size_hint: 1, None
+            size_hint_y: None
+            height: dp(26)
+            cols: 2
+            id : header_row_id
+
+            # Label:
+            #     text: "User ID"
+            # Label:
+            #     text: "User Name"
+
+        BoxLayout:
+            RecycleView:
+                viewclass: 'SelectableButton'
+                data: [{'text': str(x)} for x in root.data_items]
+                SelectableRecycleGridLayout:
+                    id : cells_id
+                    cols: 4
+                    default_size: None, dp(26)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    # width: self.minimum_width
+                    orientation: 'vertical'
+                    multiselect: True
+                    touch_multiselect: True 
+
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint: (1, 0.1)
+            Button : 
+                text : "Back"
+                on_release:
+                    app.root.current = "model"
+                    root.manager.transition.direction = "right"
+            Button : 
+                text : "Train Again"
+                on_release:
+                    root.re_train()
+                    # app.root.current = "analyze"
+                    # root.manager.transition.direction = "right"                    
+            Button : 
+                text : "Finalize"
+                on_release:
+                    # root.switch_to(root.tab_list[0])
+                    app.root.current = "export"
+                    root.manager.transition.direction = "left"
+            
+    # # name: "analyse"
+    # cells : cells_id
+    # GridLayout:
+    #     rows : 4
+    #     Label:
+    #         id: pagename_id
+    #         text : 'Analyse Results'
+    #         font_size : 50
+    #         size_hint_y : 0.2
+    #     ScrollView:     
+    #         # size_hint: None, None
+    #         size: root.width, root.height*7/8 
+    #         pos_hint: {"center_x": 0.5, "center_y": 0.5}
+    #         # center: root.width / 2, root.height / 2
+
+    #         GridLayout:
+    #             id: cells_id
+    #             cols : 5
+    #             do_scroll_x: True
+    #             do_scroll_y: True
+    #             spacing : 150
+    #             size_hint: None, None                    
+    #             height: self.minimum_height
+    #             width: self.minimum_width
+                
+    #     BoxLayout :
+    #         size_hint: (1, 0.2)
+    #         size: root.width, root.height*1/8
+    #         orientation: "horizontal"
+    #         Button:
+    #             text:'Save Changes'
+    #             on_release: 
+    #         Button:
+    #             text:'Train Again'
+    #             on_release: 
+    #                 root.apply_model()
+    #                 app.root.current = "analyse"
+    #                 # root.manager.transition.direction = "right"
+    #     BoxLayout :
+    #         size_hint: (1, 0.2)
+    #         Button : 
+    #             text : "Back"
+    #             on_release:
+    #                 app.root.current = "model"
+    #                 root.manager.transition.direction = "right"
+    #         Button : 
+    #             text : "Finalize"
+    #             on_release:
+    #                 # root.switch_to(root.tab_list[0])
+    #                 app.root.current = "export"
+    #                 root.manager.transition.direction = "left"
+            
+<ExportScreen>:
+    # name: "export"
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            id: pagename_id
+            text : 'Export Results'
+            font_size : 50
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint : (0.8,0.2)
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            Button:
+                text: 'Export To'
+                size_hint_x: 0.4
+                on_press: root.open_popup_for_download()
+            TextInput:
+                id: get_save_file_name
+                readonly: False
+                size_hint_x: 0.6
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.3      
+        Button:
+            text: 'Download'                          
+            size_hint : (0.5,0.2)
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            on_press: 
+                root.download_data(get_save_file_name.text)    
+        Label:
+            text : ''
+            # font_size : 50
+            size_hint_y : 0.3      
+        Button : 
+            text : "Back"
+            size_hint : (0.5,0.2)
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            on_release:
+                # root.switch_to(root.tab_list[0])
+                app.root.current = "analyse"
+                root.manager.transition.direction = "right"       
+
+# <excelCell>:
+#     size_hint: None, None
+#     size: 400, 50
+
+# <excelHeader>:
+#     size_hint: None, None
+#     size: 400, 40
