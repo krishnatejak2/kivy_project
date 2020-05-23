@@ -24,10 +24,11 @@ Backend DB : sqllite
 |:-----:|:----:|:-----------------------:|
 |Import | Done |Check for mistakes/errors|
 | Model | Done |check for mistakes/errors|
-|Analyse| WIP  | * retrain is taking a lot of time
-| || make only one columns selectable instead of all|
-||| add iteration, add model metrics|
+|Analyse| WIP  | 1. add iteration, add model metrics<br>2. display results is taking a lot of time<br> 3. Check the retrain button functionality<br> 4. Add page numbers to the results <br>5. make only one columns selectable instead of all <br > |
 |Export | Done |check for mistakes/errors|
+
+---
+
 
 ---
 

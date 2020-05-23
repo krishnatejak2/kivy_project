@@ -66,6 +66,21 @@ class SelectableButton(RecycleDataViewBehavior,Button):
     selectable = BooleanProperty(True)
     # data_new = ListProperty([])
 
+    def get_column_details(self,):
+        conn = sqlite3.connect("/Users/krishnateja/Project/Kivy_Project/kivy_project/data/MyData.db")
+        cursor = conn.cursor()
+        #select data specifics
+        cursor.execute("select count(*) from pragma_table_info('Model_Results');")
+        no_columns = cursor.fetchone()[0]
+        col_names = []
+        columns_name = cursor.execute("select name from pragma_table_info('Model_Results');")
+        for col in columns_name:
+            col_names.append(col[0])
+
+        conn.commit()
+        conn.close()
+        return [no_columns,col_names]
+
     def refresh_view_attrs(self, rv, index, data):
         ''' Catch and handle the view changes '''
         self.index = index
@@ -88,28 +103,37 @@ class SelectableButton(RecycleDataViewBehavior,Button):
         self.selected = is_selected
 
     def on_press(self):
-        popup = TextInputPopup(self)
-        popup.open()
+        col_details = self.get_column_details()
+        no_cols = col_details[0]
+        names_list = col_details[1]
+
+        if (self.index+1)%no_cols == 0: 
+            popup = TextInputPopup(self)
+            popup.open()
+
+
 
     def update_changes(self, txt):
         #connect to database
-        connection = sqlite3.connect("/Users/krishnateja/Project/Kivy_Project/kivy_project/data/MyData.db")
-        cursor = connection.cursor()
+        # no_cols,names_list = self.get_column_details
+        col_details = self.get_column_details()
+        no_cols = col_details[0]
+        names_list = col_details[1]
         #select data specifics
-        cursor.execute("select count(*) from pragma_table_info('Model_Results');")
-        columns = cursor.fetchone()
-        # print(self.index,columns[0])
-        if columns is None:
+        if no_cols is None:
             raise ValueError('No Result!! check the database!')
         else : 
-            id_row = math.ceil(self.index/columns[0])-1
+            id_row = math.ceil(self.index/no_cols)-1
             # print(id_row)
 
         # changes to data 
         self.text = txt
-        print(txt,type(txt))
+        # print(txt,type(txt))
+        conn = sqlite3.connect("/Users/krishnateja/Project/Kivy_Project/kivy_project/data/MyData.db")
+        cursor = conn.cursor()
         cursor.execute("""Update main.Model_Results set Predicted_Labels = %d where "index" = %d ;""" % (int(txt),id_row))
-        connection.commit()
+        conn.commit()
+        conn.close()
 
         # self.parent.get_users()
         # cursor.execute("""SELECT * FROM main.Model_Results ORDER BY "index" ASC;""")
@@ -119,9 +143,6 @@ class SelectableButton(RecycleDataViewBehavior,Button):
         # for row in rows:
         #     for col in row:
         #         self.data_new.append(col)
-
-        connection.close()
-        
 
 class ImportScreen(Screen):
     data = ObjectProperty(None,force_dispatch = True)
@@ -293,6 +314,7 @@ class AnalyseScreen(Screen,BoxLayout):
         self.get_users()
 
     def get_users(self):
+        self.header_row.clear_widgets()
         #establish conenction
         conn = sqlite3.connect("/Users/krishnateja/Project/Kivy_Project/kivy_project/data/MyData.db")
         cursor = conn.cursor()
@@ -326,11 +348,13 @@ class AnalyseScreen(Screen,BoxLayout):
         conn.close
 
     def re_train(self):         
-        for i in self.ids.header_row_id.children:
-            self.ids.header_row_id.remove_widget(i)
+        self.header_row.clear_widgets()
+        self.cells.clear_widgets()
+        # for i in self.header_row.children:
+        #     self.header_row.remove_widget(i)
         
-        for i in self.ids.cells_id.children:
-            self.ids.cells_id.remove_widget(i)
+        # for i in self.cells.children:
+        #     self.cells.remove_widget(i)
 
         conn = sqlite3.connect("./data/MyData.db")
         cursor = conn.cursor()
