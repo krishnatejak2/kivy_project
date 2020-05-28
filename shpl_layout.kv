@@ -1,27 +1,93 @@
 #:kivy 1.11.1
 
-# <DataSelectPopup>:
-#     title: "Data"
-#     size_hint: .9, .9
-#     auto_dismiss: False
+<ChangeDataPopup>:
+    title: "Enter Label :"
+    size_hint: None, None
+    size: 400, 400
+    auto_dismiss: False
+    dropdown_button : dropdown_button_id
+    change_data_button_kv : change_data_button_kv_id
+    spinner_kv : spinner_id
+    # txtinput_label : txtinput_label_id
+    BoxLayout:
+        id : change_data_button_kv_id
+        orientation: "vertical"
+        Spinner:
+            id : spinner_id
+            # size_hint: None, None
+            size: 100, 44
+            pos_hint: {'center_x': .5, 'center_y':.5}
+            text: 'Select Label'
+            values : root.val_list
 
-#     BoxLayout:
-#         orientation: "vertical"
-#         Label :
-#             text : "Choose a source file to continue"        
-#         BoxLayout:
-#             size_hint: (1, 0.1)
-#             Button:
-#                 text: "Cancel"
-#                 on_release: 
-#                     app.root.current = "import"
-#                     root.dismiss()
-                    
-                    # self.tab.switch_to(root.tab_list[2])
+        BoxLayout:
+            id : dropdown_button_id
+            orientation: "horizontal"
+            # size_hint: None, 0.2
+            size_hint: (1, 0.2)
+            Button:
+                text: "Go"
+                on_release:
+                    root.change_data(spinner_id.text)
+                    root.dismiss()
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
 
+
+
+<ChangePageNumberPopup>:
+    title: "Enter Page Number :"
+    size_hint: None, None
+    size: 400, 400
+    auto_dismiss: False
+    id : change_page_layout_id
+    BoxLayout:
+        orientation: "vertical"
+        TextInput:
+            id: txtinput_pagenum_id
+            # text: "1"
+            readonly: False
+        BoxLayout:
+            orientation: "horizontal"
+            # size_hint: None, 0.2
+            size_hint: (1, 0.2)
+            Button:
+                text: "Go"
+                on_release:
+                    root.change_page(txtinput_pagenum_id.text)
+                    root.dismiss()
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
+
+
+
+<GoBackPopup>:
+    title: "All progress will be lost!"
+    size_hint: None, None
+    size: 400, 400
+    auto_dismiss: False
+
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "Continue?"
+        BoxLayout:
+            orientation: "horizontal"
+            # size_hint: None, 0.2
+            size_hint: (1, 0.2)
+            Button:
+                text: "Yes"
+                on_release:
+                    root.change_screen()
+                    root.dismiss()
+            Button:
+                text: "Cancel"
+                on_release: root.dismiss()
 
 <TextInputPopup>:
-    title: "Popup"
+    title: "Input Label"
     size_hint: None, None
     size: 400, 400
     auto_dismiss: False
@@ -123,8 +189,6 @@
 <ImportScreen>:
     # name: "import"
 
-    # selectmodel : select_model_id
-    # selectlabel : select_label_id
     BoxLayout:
         orientation: 'vertical'
         # size_hint : None,None
@@ -167,7 +231,8 @@
                 # size_hint_x: 0.3           
                 # size_hint_y: 0.2
                 on_press: 
-                    root.upload_data()
+                    root.data_check_upload()
+                    
             Button:
                 text: 'Submit'
                 # size_hint_x: 0.3           
@@ -197,12 +262,6 @@
             text : 'Apply Model'
             font_size : 50
             size_hint_y : 0.3
-        # spacing : 150
-        # # size_hint : 1,1
-        # Label:
-        #     id: pagename_id
-        #     text : 'Select Model'
-        #     font_size : 50
 
         BoxLayout:
             id : select_model_id
@@ -214,8 +273,7 @@
                 text : 'Model'
                 size_hint : (0.4,0.2)           
                 pos_hint: {'center_x': .5, 'center_y': .5}
-            # Button:
-            #     id : mainbutton_model
+
         Label:
             text : ''
             # font_size : 50
@@ -251,44 +309,59 @@
                 size : root.width*0.5, root.height*0.1
                 on_press: 
                     root.apply_model()
-                    # root.on_cells()
-                    # root.switch_to(root.tab_list[1])
-                    app.root.current = "analyse"
-                    root.manager.transition.direction = "left"
 
 <AnalyseScreen>:
     cells : cells_id
-    header_row : header_row_id
+
     BoxLayout:
         orientation: "vertical"
-
-        GridLayout:
-            size_hint: 1, None
-            size_hint_y: None
-            height: dp(26)
-            cols: 2
-            id : header_row_id
-
-            # Label:
-            #     text: "User ID"
-            # Label:
-            #     text: "User Name"
+        ScrollView:     
+            # size_hint: None, None
+            size: root.width, root.height*7/8 
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            # center: root.width / 2, root.height / 2
+                          
+            GridLayout:
+                id: cells_id
+                cols : 5
+                do_scroll_x: True
+                do_scroll_y: True
+                # height : dp(26)
+                spacing : 10
+                size_hint: None, None                    
+                height: self.minimum_height
+                width: self.minimum_width
 
         BoxLayout:
-            RecycleView:
-                viewclass: 'SelectableButton'
-                data: [{'text': str(x)} for x in root.data_items]
-                SelectableRecycleGridLayout:
-                    id : cells_id
-                    cols: 4
-                    default_size: None, dp(26)
-                    default_size_hint: 1, None
-                    size_hint_y: None
-                    height: self.minimum_height
-                    # width: self.minimum_width
-                    orientation: 'vertical'
-                    multiselect: True
-                    touch_multiselect: True 
+            orientation:'horizontal'
+            size_hint: (0.5, 0.05)
+            pos_hint : {"center_x":0.5,"center_y":0.5}
+            Button:
+                id : pagenumber_first
+                text : "<<"
+                on_release:
+                    root.go_to_first_page(pagenumber_id.text)
+            Button:
+                id : pagenumber_back
+                text : "<"
+                on_release:
+                    root.go_to_previous_page(pagenumber_id.text)
+            Button:
+                id : pagenumber_id
+                text : "1"
+                on_release : 
+                    root.change_page_from_kivy()
+            Button:
+                id : pagenumber_forward
+                text : ">"
+                on_release:
+                    root.go_to_next_page(pagenumber_id.text)
+            Button:
+                id : pagenumber_last
+                text : ">>"
+                on_release:
+                    root.go_to_last_page(pagenumber_id.text)
+            
 
         BoxLayout:
             orientation:'horizontal'
@@ -296,14 +369,13 @@
             Button : 
                 text : "Back"
                 on_release:
-                    app.root.current = "model"
-                    root.manager.transition.direction = "right"
+                    root.go_back_to()
+
             Button : 
                 text : "Train Again"
                 on_release:
                     root.re_train()
-                    # app.root.current = "analyze"
-                    # root.manager.transition.direction = "right"                    
+                
             Button : 
                 text : "Finalize"
                 on_release:
@@ -311,57 +383,6 @@
                     app.root.current = "export"
                     root.manager.transition.direction = "left"
             
-    # # name: "analyse"
-    # cells : cells_id
-    # GridLayout:
-    #     rows : 4
-    #     Label:
-    #         id: pagename_id
-    #         text : 'Analyse Results'
-    #         font_size : 50
-    #         size_hint_y : 0.2
-    #     ScrollView:     
-    #         # size_hint: None, None
-    #         size: root.width, root.height*7/8 
-    #         pos_hint: {"center_x": 0.5, "center_y": 0.5}
-    #         # center: root.width / 2, root.height / 2
-
-    #         GridLayout:
-    #             id: cells_id
-    #             cols : 5
-    #             do_scroll_x: True
-    #             do_scroll_y: True
-    #             spacing : 150
-    #             size_hint: None, None                    
-    #             height: self.minimum_height
-    #             width: self.minimum_width
-                
-    #     BoxLayout :
-    #         size_hint: (1, 0.2)
-    #         size: root.width, root.height*1/8
-    #         orientation: "horizontal"
-    #         Button:
-    #             text:'Save Changes'
-    #             on_release: 
-    #         Button:
-    #             text:'Train Again'
-    #             on_release: 
-    #                 root.apply_model()
-    #                 app.root.current = "analyse"
-    #                 # root.manager.transition.direction = "right"
-    #     BoxLayout :
-    #         size_hint: (1, 0.2)
-    #         Button : 
-    #             text : "Back"
-    #             on_release:
-    #                 app.root.current = "model"
-    #                 root.manager.transition.direction = "right"
-    #         Button : 
-    #             text : "Finalize"
-    #             on_release:
-    #                 # root.switch_to(root.tab_list[0])
-    #                 app.root.current = "export"
-    #                 root.manager.transition.direction = "left"
             
 <ExportScreen>:
     # name: "export"
@@ -393,7 +414,8 @@
             size_hint : (0.5,0.2)
             pos_hint : {"center_x":0.5,"center_y":0.5}
             on_press: 
-                root.download_data(get_save_file_name.text)    
+                root.data_check_popup()
+                # root.download_data(get_save_file_name.text)    
         Label:
             text : ''
             # font_size : 50
@@ -407,10 +429,10 @@
                 app.root.current = "analyse"
                 root.manager.transition.direction = "right"       
 
-# <excelCell>:
-#     size_hint: None, None
-#     size: 400, 50
+<excelCell>:
+    size_hint: None, None
+    size: 400, 40
 
-# <excelHeader>:
-#     size_hint: None, None
-#     size: 400, 40
+<excelHeader>:
+    size_hint: None, None
+    size: 400, 40
